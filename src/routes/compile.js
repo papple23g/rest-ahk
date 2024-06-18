@@ -8,20 +8,21 @@ import proc from 'child_process';
 import md5 from 'md5';
 import del from 'del';
 
-// TODO: convert to import
-// const proc = require('child_process');
-
 const CACHE_TIMEOUT = process.env.CACHE_TIMEOUT || 60000;
 const BUILD_TIMEOUT = process.env.BUILD_TIMEOUT || 10000;
 
 // expressjs constants
+const app = express();
+app.use(express.text({ type: 'text/plain; charset=utf-8' }));
 const router = express.Router();
 const queueMw = expressQueue({ activeLimit: 1, queuedLimit: 20 });
 
 /** Utility function to convert script->exe */
 async function compileScript(id, script) {
+  const BOM = '\uFEFF';  // UTF-8 BOM
   try {
-    await fs.writeFile(`/tmp/${id}.ahk`, script);
+    // 使用 UTF-8 BOM 編碼寫入文件
+    await fs.writeFile(`/tmp/${id}.ahk`, BOM + script, { encoding: 'utf8' });
 
     await new Promise(async (resolve) => {
       proc.exec(`xvfb-run -a wine Ahk2Exe.exe /in /tmp/${id}.ahk`, { timeout: BUILD_TIMEOUT }, (err, stout, sterr) => {
@@ -58,7 +59,6 @@ router.post('/', queueMw, async (req, res) => {
     }
   }
 
-  // cannot use res.download(`/tmp/${id}.exe`); due to cached buffer
   res.sendFileBuffer(`${id}.exe`, data);
 });
 
