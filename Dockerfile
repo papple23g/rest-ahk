@@ -1,4 +1,4 @@
-FROM ubuntu:disco
+FROM ubuntu:jammy
 
 RUN groupadd --gid 1000 node && \
     useradd --uid 1000 --gid node --shell /bin/bash --create-home node
@@ -27,7 +27,8 @@ COPY . .
 
 RUN npm install
 RUN npm run build
-RUN npm prune
+# 暫時跳過 npm prune
+# RUN npm prune
 
 USER node
 

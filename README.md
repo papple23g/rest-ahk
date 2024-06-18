@@ -82,5 +82,5 @@ A simple workflow to package (and run) the service for production.
 ```bash
 docker build --rm -f "Dockerfile" -t rest-ahk:latest .
 
-docker run --rm -it -p 1234:1234/tcp ahk-docker:latest
+docker run --rm -it -p 8080:8080/tcp rest-ahk:latest
 ```
